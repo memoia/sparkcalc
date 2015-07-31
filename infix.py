@@ -1,15 +1,20 @@
 import unittest
-from collections import deque
+import operator
+from collections import deque, namedtuple
 from types import IntType
+
+
+OperatorProperty = namedtuple('OperatorProperty', ('weight', 'method'))
 
 
 class BaseOperators(object):
     """Subclass this to add new operators"""
+
     operators = {  # symbol to precendence (higher value is higher precedence)
-        '*': 10,
-        '/': 10,
-        '+': 5,
-        '-': 5,
+        '*': OperatorProperty(10, operator.mul),
+        '/': OperatorProperty(10, operator.div),
+        '+': OperatorProperty(5, operator.add),
+        '-': OperatorProperty(5, operator.sub),
     }
 
     def is_operator(self, symbol):
@@ -18,7 +23,7 @@ class BaseOperators(object):
     def weight(self, operator):
         if not self.is_operator(operator):
             raise ValueError('{} is not an operator'.format(operator))
-        return self.operators.get(operator)
+        return self.operators[operator].weight
 
 
 class TestBaseOperators(unittest.TestCase):
@@ -128,6 +133,10 @@ class TestRPNBuilder(unittest.TestCase):
         result = RPNBuilder('1 + 2 * 3').build()
         self.assertEqual(result, ['1', '2', '3', '*', '+'])
 
+
+class RPNEvaluator(object):
+    """Evaluate a character list of integers and operators in RP-notation"""
+    # ... queue more
 
 
 if __name__ == '__main__':
