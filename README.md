@@ -55,3 +55,12 @@ Assumes Python 2.7 is installed and available in the PATH. Assumes GNU
 Make is installed.
 
 Run ``make`` to execute tests/demos.
+
+To try using the library interactively, run ``python2.7`` from
+this directory and try this:
+
+```python
+>>> from infix import eval_expr
+>>> eval_expr('4 + 4 * 8 / 2 + 10')
+30
+```
