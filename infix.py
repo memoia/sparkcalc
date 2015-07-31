@@ -111,7 +111,7 @@ class RPNBuilder(object):
 
     def _handle_operator(self, symbol):
         while self._next_op_has_precedence(symbol):
-            self.symbols.append(opqueue.popleft())
+            self.symbols.append(self.opqueue.popleft())
 
     def build(self):
         for symbol in self.tokenizer.tokens(self.in_str):
@@ -165,9 +165,22 @@ class TestRPNEvaluator(unittest.TestCase):
     def test_simple_addition(self):
         """Does '1 + 2' evaluate to 3 ?"""
         rpn_ops = RPNBuilder('1 + 2').build()
-        evaluator = RPNEvaluator(rpn_ops)
-        result = evaluator.evaluate()
-        import pdb; pdb.set_trace()
+        self.assertEqual(3, RPNEvaluator(rpn_ops).evaluate())
+
+    def test_precedence(self):
+        """Does '1 + 2 * 3' evaluate to 7 ?"""
+        rpn_ops = RPNBuilder('1 + 2 * 3').build()
+        self.assertEqual(7, RPNEvaluator(rpn_ops).evaluate())
+
+    def test_example_provided_in_readme(self):
+        instr = '4 + 4 * 8 / 2 + 10'
+        rpn_ops = RPNBuilder(instr).build()
+        self.assertEqual(30, RPNEvaluator(rpn_ops).evaluate())
+
+
+def eval_expr(in_str):
+    """Main entry point for module use."""
+    return RPNEvaluator(RPNBuilder(in_str).build()).evaluate()
 
 
 if __name__ == '__main__':
