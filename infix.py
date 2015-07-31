@@ -38,8 +38,8 @@ class TestBaseOperators(unittest.TestCase):
 
 class BaseTokenizer(object):
 
-    def __init__(self, operator_cls=BaseOperators):
-        self.operators = operator_cls()
+    def __init__(self, operator_instance=None):
+        self.operators = BaseOperators() if operator_instance is None else operator_instance
 
     def is_operator(self, symbol):
         return self.operators.is_operator(symbol)
@@ -86,14 +86,48 @@ class TestBaseTokenizer(unittest.TestCase):
 
 class RPNBuilder(object):
     """Convert an infix string to reverse polish notation using shunting yard"""
-    def __init__(infix_string, token_cls=BaseTokenizer):
+    def __init__(self, infix_string, token_cls=BaseTokenizer, operator_cls=BaseOperators):
         self.in_str = infix_string
-        self.tokenizer = token_cls()
-        self.operators = deque()
+        self.operators = operator_cls()
+        self.tokenizer = token_cls(self.operators)
+        self.opqueue = deque()
         self.symbols = []
 
+    def _next_op_has_precedence(self, symbol):
+        if not len(self.opqueue) > 0:
+            return False
+        next_op = self.opqueue[0]
+        return self.operators.weight(next_op) >= self.operators.weight(symbol)
+
+    def _handle_operator(self, symbol):
+        while self._next_op_has_precedence(symbol):
+            self.symbols.append(opqueue.popleft())
+
     def build(self):
-        tokens = self.tokenizer.tokens(self.in_str)
+        for symbol in self.tokenizer.tokens(self.in_str):
+            if self.operators.is_operator(symbol):
+                self._handle_operator(symbol)
+                self.opqueue.appendleft(symbol)
+            else:
+                self.symbols.append(symbol)
+
+        while len(self.opqueue) > 0:
+            self.symbols.append(self.opqueue.popleft())
+
+        return self.symbols
+
+
+class TestRPNBuilder(unittest.TestCase):
+    def test_simple_addition(self):
+        """Does '1 + 2' result with 1 2 + ?'"""
+        result = RPNBuilder('1 + 2').build()
+        self.assertEqual(result, ['1', '2', '+'])
+
+    def test_precedence(self):
+        """Does '1 + 2 * 3' result with 1 2 3 * + ?"""
+        result = RPNBuilder('1 + 2 * 3').build()
+        self.assertEqual(result, ['1', '2', '3', '*', '+'])
+
 
 
 if __name__ == '__main__':
