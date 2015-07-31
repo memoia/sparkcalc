@@ -25,6 +25,11 @@ class BaseOperators(object):
             raise ValueError('{} is not an operator'.format(operator))
         return self.operators[operator].weight
 
+    def method(self, operator):
+        if not self.is_operator(operator):
+            raise ValueError('{} is not an operator'.format(operator))
+        return self.operators[operator].method
+
 
 class TestBaseOperators(unittest.TestCase):
 
@@ -136,7 +141,33 @@ class TestRPNBuilder(unittest.TestCase):
 
 class RPNEvaluator(object):
     """Evaluate a character list of integers and operators in RP-notation"""
-    # ... queue more
+    def __init__(self, rpn_list, operator_cls=BaseOperators):
+        self.in_lst = rpn_list
+        self.operators = operator_cls()
+        self.queue = deque()
+
+    def _next_values(self):
+        second_value = self.queue.popleft()
+        first_value = self.queue.popleft()
+        return (first_value, second_value)
+
+    def evaluate(self):
+        for symbol in self.in_lst:
+            if self.operators.is_operator(symbol):
+                method = self.operators.method(symbol)
+                self.queue.appendleft(method(*self._next_values()))
+            else:
+                self.queue.appendleft(int(symbol))
+        return self.queue.pop()
+
+
+class TestRPNEvaluator(unittest.TestCase):
+    def test_simple_addition(self):
+        """Does '1 + 2' evaluate to 3 ?"""
+        rpn_ops = RPNBuilder('1 + 2').build()
+        evaluator = RPNEvaluator(rpn_ops)
+        result = evaluator.evaluate()
+        import pdb; pdb.set_trace()
 
 
 if __name__ == '__main__':
