@@ -21,6 +21,21 @@ class BaseOperators(object):
         return self.operators.get(operator)
 
 
+class TestBaseOperators(unittest.TestCase):
+
+    def setUp(self):
+        self.instance = BaseOperators()
+
+    def test_weight_for_valid_operator(self):
+        """Does getting the weight of '*' return a value?"""
+        self.assertTrue(type(self.instance.weight('*')) is IntType)
+
+    def test_weight_for_invalid_operator(self):
+        """Does getting the weight of '^' raise an exception?"""
+        with self.assertRaises(ValueError):
+            self.instance.weight('^')
+
+
 class BaseTokenizer(object):
 
     def __init__(self, operator_cls=BaseOperators):
@@ -37,20 +52,6 @@ class BaseTokenizer(object):
         if not all(map(self.is_valid_symbol, items)):
             raise ValueError('Invalid character in {}'.format(items))
         return items
-
-
-class RPNBuilder(object):
-    """Convert an infix string to reverse polish notation using shunting yard"""
-    def __init__(infix_string, token_cls=BaseTokenizer):
-        self.in_str = infix_string
-        self.tokenizer = token_cls()
-        self.operators = deque()
-        self.symbols = []
-
-    def build(self):
-        tokens = self.tokenizer.tokens(self.in_str)
-
-
 
 
 class TestBaseTokenizer(unittest.TestCase):
@@ -83,34 +84,16 @@ class TestBaseTokenizer(unittest.TestCase):
             self.instance.tokens('1 -3')
 
 
-class TestBaseOperators(unittest.TestCase):
+class RPNBuilder(object):
+    """Convert an infix string to reverse polish notation using shunting yard"""
+    def __init__(infix_string, token_cls=BaseTokenizer):
+        self.in_str = infix_string
+        self.tokenizer = token_cls()
+        self.operators = deque()
+        self.symbols = []
 
-    def setUp(self):
-        self.instance = BaseOperators()
-
-    def test_weight_for_valid_operator(self):
-        """Does getting the weight of '*' return a value?"""
-        self.assertTrue(type(self.instance.weight('*')) is IntType)
-
-    def test_weight_for_invalid_operator(self):
-        """Does getting the weight of '^' raise an exception?"""
-        with self.assertRaises(ValueError):
-            self.instance.weight('^')
-
-
-
-
-class TestWhatever(unittest.TestCase):
-
-    def test_whatever(self):
-        """Does whatever?"""
-        self.assertTrue(True)
-
-
-class TestOtherThing(unittest.TestCase):
-    def test_other(self):
-        """yeah yeah?"""
-        self.assertTrue(True)
+    def build(self):
+        tokens = self.tokenizer.tokens(self.in_str)
 
 
 if __name__ == '__main__':
