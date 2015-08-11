@@ -1,6 +1,8 @@
-In response to "EngineeringManagerChallenge\_(1).pdf" sent by
-taek=sparkcentral.com@greenhouse.io on Tue, 04 Aug 2015 02:04:32 +0000
+In response to "EngineeringManagerChallenge\_(1).pdf"
 ======================================================================
+
+(sent by taek=sparkcentral.com@greenhouse.io on Tue, 04 Aug 2015 02:04:32 +0000)
+
 
 ## Assumptions
 
